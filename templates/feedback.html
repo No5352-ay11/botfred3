@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback zu Botfred</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .feedback-container {
+            background-color: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #58a6ff;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .stars input {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 30px;
+            color: #444;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .stars input:checked ~ label,
+        .stars label:hover,
+        .stars label:hover ~ label {
+            color: #f0c420;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            resize: vertical;
+            background-color: #21262d;
+            color: #c9d1d9;
+            margin-top: 10px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #238636;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+        }
+    </style>
+</head>
+<body>
+    <div class="feedback-container">
+        <h2>⭐ Gib uns dein Feedback!</h2>
+        <form onsubmit="sendFeedback(event)">
+            <div class="stars">
+                <input type="radio" name="star" id="star5" value="5"><label for="star5">★</label>
+                <input type="radio" name="star" id="star4" value="4"><label for="star4">★</label>
+                <input type="radio" name="star" id="star3" value="3"><label for="star3">★</label>
+                <input type="radio" name="star" id="star2" value="2"><label for="star2">★</label>
+                <input type="radio" name="star" id="star1" value="1"><label for="star1">★</label>
+            </div>
+            <textarea rows="5" placeholder="Schreib uns dein Feedback..." required></textarea>
+            <button type="submit">Absenden</button>
+        </form>
+    </div>
+
+    <script>
+        function sendFeedback(e) {
+            e.preventDefault();
+
+            const rating = document.querySelector('input[name="star"]:checked');
+    const comment = document.querySelector('textarea').value.trim();
+
+    if (!rating) {
+        alert("Bitte wähle eine Sternebewertung aus.");
+        return;
+    }
+
+    if (!comment) {
+        alert("Bitte gib einen Kommentar ein.");
+        return;
+    }
+
+    // POST-Anfrage an Flask mit den Feedback-Daten
+    fetch("/submit_feedback", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            rating: rating.value,
+            comment: comment
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        // Wenn der Server das Feedback erfolgreich gespeichert hat
+        if (data.status === "success") {
+            alert("Danke für dein Feedback!");
+            window.location.href = "index.html";  // Weiterleitung zur Startseite nach dem Absenden
+        } else {
+            alert("Fehler beim Speichern.");
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Es gab einen Fehler bei der Übertragung des Feedbacks.");
+    });
+}
+</script>
+</body>
+</html>

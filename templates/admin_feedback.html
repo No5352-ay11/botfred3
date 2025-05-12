@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback-Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: #c9d1d9; padding: 30px; }
+        h1 { color: #58a6ff; }
+        .fb-entry { background: #161b22; padding: 15px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>📋 Feedback-Übersicht</h1>
+    {% for f in feedbacks %}
+        <div class="fb-entry">
+            <strong>Sterne:</strong> {{ f.rating }}<br>
+            <strong>Kommentar:</strong> {{ f.comment }}
+        </div>
+    {% else %}
+        <p>Kein Feedback vorhanden.</p>
+    {% endfor %}
+</body>
+</html>
