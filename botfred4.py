@@ -165,13 +165,13 @@ def hole_bild_url(begriff):
         bilder = seite.images
         for bild in bilder:
             if bild.lower().endswith((".jpg", ".jpeg", ".png")):
-                if not any(x in bild.lower() for x in ["logo", "icon", "wikimedia", "flag", "symbol", "svg"]):
+                # Ausschließen von Logos, Symbolen usw.
+                if not any(unscharf in bild.lower() for unscharf in ["logo", "icon", "wikimedia", "symbol", "flag", "map", "svg"]):
                     return bild
     except Exception as e:
-        print(f"Fehler beim Bildholen für '{begriff}': {e}")
+        print(f"Bildfehler für '{begriff}': {e}")
         return None
     return None
-
 # App starten
 if __name__ == "__main__":
     with app.app_context():
