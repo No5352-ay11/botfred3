@@ -123,20 +123,19 @@
         })
     })
     .then(res => res.json())
-    .then(data => {
-        // Wenn der Server das Feedback erfolgreich gespeichert hat
-        if (data.status === "success") {
-            alert("Danke für dein Feedback!");
-            window.location.href = "/";
-        } else {
-            alert("Fehler beim Speichern.");
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert("Es gab einen Fehler bei der Übertragung des Feedbacks.");
-    });
-}
+  .then(data => {
+    if (data.status === "success") {
+        alert("Danke für dein Feedback!");
+    } else {
+        console.warn("Feedback konnte nicht gespeichert werden.");
+    }
+    window.location.href = "/";
+})
+.catch(error => {
+    console.error('Error:', error);
+    // Kein alert mehr – einfach zur Startseite weiterleiten
+    window.location.href = "/";
+})
 </script>
 </body>
 </html>
