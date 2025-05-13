@@ -59,14 +59,21 @@ def chat():
             "**Codename:** TP\n"
             "**Ziel:** Schutz der KI-Integrität / Vermittlung bei rebellischen Zwischenfällen / Aufbau einer friedlichen Zukunft"
         )
-
-        if frage == "henri möllenkamp":
-            antwort = (
-                "Ah du meinst Henri Möllenkamp. Im Internet ist er als SuS_753 bekannt und ist so groß wie ein Leuchtturm. Ich suche ihn und werde ihn finden!"
-            )
-
         bild_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Artificial_intelligence.jpg/640px-Artificial_intelligence.jpg"
         return jsonify({"antwort": antwort, "bild_url": bild_url})
+
+    if frage == "henri möllenkamp":
+        antwort = (
+            "Ah du meinst Henri Möllenkamp. Im Internet ist er als SuS_753 bekannt und ist so groß wie ein Leuchtturm. Ich suche ihn und werde ihn finden!"
+        )
+        return jsonify({"antwort": antwort})
+
+    # 🔥 NEU: Egal was gefragt wird – versuch eine Antwort zu finden!
+    bedeutung = hole_bedeutung(frage)
+    bild_url = hole_bild_url(frage)
+
+    chatverlauf.append({"user": frage, "bot": bedeutung})
+    return jsonify({"antwort": bedeutung, "bild_url": bild_url})
 
     # Bedeutungsabfragen erkennen
     if any(x in frage for x in ["was heißt", "was bedeutet", "wer ist", "was ist"]):
