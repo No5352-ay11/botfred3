@@ -94,47 +94,51 @@
         </form>
     </div>
 
-    <script>
-        function sendFeedback(e) {
-            e.preventDefault();
+  <script>
+    function sendFeedback(e) {
+        e.preventDefault();
 
-            const rating = document.querySelector('input[name="star"]:checked');
-    const comment = document.querySelector('textarea').value.trim();
+        const rating = document.querySelector('input[name="star"]:checked');
+        const comment = document.querySelector('textarea').value.trim();
 
-    if (!rating) {
-        alert("Bitte wähle eine Sternebewertung aus.");
-        return;
-    }
+        if (!rating) {
+            alert("Bitte wähle eine Sternebewertung aus.");
+            return;
+        }
 
-    if (!comment) {
-        alert("Bitte gib einen Kommentar ein.");
-        return;
-    }
+        if (!comment) {
+            alert("Bitte gib einen Kommentar ein.");
+            return;
+        }
 
-    // POST-Anfrage an Flask mit den Feedback-Daten
-    fetch("/submit_feedback", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            rating: rating.value,
-            comment: comment
+        console.log("Sende Feedback:", rating.value, comment); // Debug
+
+        fetch("/submit_feedback", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                rating: rating.value,
+                comment: comment
+            })
         })
-    })
-    .then(res => res.json())
- .then(data => {
-    if (data.status === "success") {
-        alert("Danke für dein Feedback!");
-    } else {
-        console.warn("Feedback konnte nicht gespeichert werden.");
+        .then(res => {
+            console.log("Antwortstatus:", res.status);
+            return res.json();
+        })
+        .then(data => {
+            console.log("Antwort vom Server:", data);
+
+            alert("Danke für dein Feedback!");
+            window.location.href = "/";
+        })
+        .catch(error => {
+            console.error("Fetch-Fehler:", error);
+            alert("Feedback konnte nicht gesendet werden. Du wirst trotzdem weitergeleitet.");
+            window.location.href = "/";
+        });
     }
-    window.location.href = "/";
-})
-.catch(error => {
-    console.error('Fehler beim Senden des Feedbacks:', error);
-    window.location.href = "/index.html";
-})
 </script>
 </body>
 </html>
