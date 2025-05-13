@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import wikipedia
 import requests
 import os
+import re
 from flask_sqlalchemy import SQLAlchemy
 
 # Wikipedia auf Deutsch
@@ -10,39 +11,39 @@ wikipedia.set_lang("de")
 # Flask-App starten
 app = Flask(__name__)
 
-# SQLAlchemy für die Datenbank
+# SQLite-Datenbank konfigurieren
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feedback.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Feedback-Datenbankmodell
+# Feedback-Modell
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     rating = db.Column(db.Integer, nullable=False)
     comment = db.Column(db.Text, nullable=False)
 
-# Speicher für Bedeutungen & Chatverlauf
+# Speicher für Chatverlauf und Bedeutungen
 bedeutungen_speicher = {}
 chatverlauf = []
 
-# Route für das Admin-Feedback
+# Route: Admin Feedback Übersicht
 @app.route("/admin/feedback")
 def admin_feedback():
     feedbacks = Feedback.query.order_by(Feedback.id.desc()).all()
     return render_template("admin_feedback.html", feedbacks=feedbacks)
 
-# Startseite
+# Route: Startseite
 @app.route("/")
 def index():
-    return render_template("index.html")  # deine HTML-Datei
+    return render_template("index.html")
 
-# Route für Feedback-Seite
+# Route: Feedback-Seite
 @app.route("/feedback")
 def feedback():
     return render_template("feedback.html")
 
-# Route für den Chat
+# Route: Chat
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json
@@ -68,36 +69,15 @@ def chat():
         )
         return jsonify({"antwort": antwort})
 
-    # 🔥 NEU: Egal was gefragt wird – versuch eine Antwort zu finden!
-    bedeutung = hole_bedeutung(frage)
-    bild_url = hole_bild_url(frage)
+    # 🧠 Begriff aus Frage extrahieren
+    begriff = extrahiere_begriff(frage)
+    bedeutung = hole_bedeutung(begriff)
+    bild_url = hole_bild_url(begriff)
 
     chatverlauf.append({"user": frage, "bot": bedeutung})
     return jsonify({"antwort": bedeutung, "bild_url": bild_url})
 
-    # Bedeutungsabfragen erkennen
-    if any(x in frage for x in ["was heißt", "was bedeutet", "wer ist", "was ist"]):
-        if "was heißt" in frage:
-            begriff = frage.replace("was heißt", "").strip()
-        elif "was bedeutet" in frage:
-            begriff = frage.replace("was bedeutet", "").strip()
-        elif "wer ist" in frage:
-            begriff = frage.replace("wer ist", "").strip()
-        elif "was ist" in frage:
-            begriff = frage.replace("was ist", "").strip()
-        else:
-            begriff = frage.strip()
-
-        bedeutung = hole_bedeutung(begriff)
-        bild_url = hole_bild_url(begriff)
-
-        chatverlauf.append({"user": frage, "bot": bedeutung})
-        return jsonify({"antwort": bedeutung, "bild_url": bild_url})
-
-    return jsonify({"antwort": "Ich habe das nicht verstanden. Frag mit 'Was heißt XYZ?'"})
-
-
-# Route für das Absenden von Feedback
+# Route: Feedback absenden
 @app.route("/submit_feedback", methods=["POST"])
 def submit_feedback():
     data = request.get_json()
@@ -113,32 +93,26 @@ def submit_feedback():
 
     return jsonify({"status": "success"})
 
-# DuckDuckGo-Suche als Fallback
-def duckduckgo_suche(begriff):
-    url = "https://api.duckduckgo.com/"
-    params = {
-        "q": begriff,
-        "format": "json",
-        "no_redirect": 1,
-        "no_html": 1,
-        "kl": "de-de"
-    }
+# 🔎 Begriff aus freier Frage extrahieren
+def extrahiere_begriff(frage):
+    frage = frage.lower()
+    frage = re.sub(r"[^a-zäöüß\s]", "", frage)
 
-    try:
-        response = requests.get(url, params=params)
-        data = response.json()
+    stopwörter = [
+        "was", "ist", "bedeutet", "heißt", "wer", "wie", "funktioniert",
+        "erklär", "mir", "sind", "von", "den", "die", "der", "das", "ein",
+        "eine", "und", "zu"
+    ]
 
-        if data.get("AbstractText"):
-            return data['AbstractText']
-        elif data.get("RelatedTopics"):
-            topics = data["RelatedTopics"]
-            if topics and "Text" in topics[0]:
-                return f"DuckDuckGo (verwandt): {topics[0]['Text']}"
-        return "Leider keine passende Antwort gefunden."
-    except Exception as e:
-        return f"DuckDuckGo-Fehler: {e}"
+    wörter = frage.split()
+    bedeutungswörter = [w for w in wörter if w not in stopwörter]
 
-# Bedeutung ermitteln
+    if bedeutungswörter:
+        return " ".join(bedeutungswörter[:3])  # max. 3 Wörter
+    else:
+        return frage
+
+# 🧠 Bedeutung holen (Wikipedia + DuckDuckGo)
 def hole_bedeutung(begriff):
     if begriff in bedeutungen_speicher:
         return f"Ich weiß es schon! {bedeutungen_speicher[begriff]}"
@@ -154,12 +128,37 @@ def hole_bedeutung(begriff):
     except Exception:
         pass
 
-    # Fallback auf DuckDuckGo
+    # Fallback: DuckDuckGo
     duck = duckduckgo_suche(begriff)
     bedeutungen_speicher[begriff] = duck
     return duck
 
-# Bild über Wikipedia holen
+# 🔍 DuckDuckGo-Suche
+def duckduckgo_suche(begriff):
+    url = "https://api.duckduckgo.com/"
+    params = {
+        "q": begriff,
+        "format": "json",
+        "no_redirect": 1,
+        "no_html": 1,
+        "kl": "de-de"
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        if data.get("AbstractText"):
+            return data["AbstractText"]
+        elif data.get("RelatedTopics"):
+            topics = data["RelatedTopics"]
+            if topics and isinstance(topics[0], dict) and "Text" in topics[0]:
+                return f"DuckDuckGo (verwandt): {topics[0]['Text']}"
+        return "Leider keine passende Antwort gefunden."
+    except Exception as e:
+        return f"DuckDuckGo-Fehler: {e}"
+
+# 🖼 Bild holen (Wikipedia)
 def hole_bild_url(begriff):
     try:
         seite = wikipedia.page(begriff, auto_suggest=False)
@@ -171,10 +170,11 @@ def hole_bild_url(begriff):
     except Exception as e:
         print(f"Fehler beim Bildholen für '{begriff}': {e}")
         return None
-
     return None
 
-# Lokaler Start
+# App starten
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
