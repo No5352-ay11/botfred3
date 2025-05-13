@@ -170,6 +170,7 @@
             });
         }
 
+        // Funktion, um eine Nachricht hinzuzufügen
         function appendMessage(sender, text, type, bildUrl = null) {
             const chatBox = document.getElementById("chat-box");
             const messageDiv = document.createElement("div");
@@ -178,11 +179,43 @@
             chatBox.appendChild(messageDiv);
 
             if (bildUrl) {
-    const img = document.createElement("img");
-    img.src = bildUrl;
-    img.alt = "Bild von Botfred";
-    chatBox.appendChild(img);
-}
+                const img = document.createElement("img");
+                img.src = bildUrl;
+                img.alt = "Bild von Botfred";
+                chatBox.appendChild(img);
+            }
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Funktion, die beim Laden der Seite ausgeführt wird
+        window.onload = function() {
+            // Sende eine Begrüßungsnachricht
+            setTimeout(() => {
+                appendMessage("Botfred", "Hallo! Wie kann ich dir helfen?", "bot");
+            }, 500); // Nach 500ms (0,5s) wird die Nachricht gesendet
+        };
+
+        function senden() {
+            const frageInput = document.getElementById("frage");
+            const frage = frageInput.value.trim();
+
+            if (!frage) return;
+
+            appendMessage("Du", frage, "user");
+
+            frageInput.value = "";
+
+            fetch("/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ frage: frage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Antwort vom Server:", data);
+                appendMessage("Botfred", data.antwort, "bot", data.bild_url);
+            });
 
             chatBox.scrollTop = chatBox.scrollHeight;
         }
