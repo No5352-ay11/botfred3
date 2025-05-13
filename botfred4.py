@@ -52,6 +52,14 @@ def chat():
     if frage == "exit":
         return jsonify({"antwort": "Hauste rein!"})
 
+    # Wenn eine bekannte Person oder ein Begriff nachgefragt wird
+    if "wer ist" in frage or "was ist" in frage:
+        begriff = frage.replace("wer ist", "").replace("was ist", "").strip()
+        antwort = hole_wikidata_info(begriff)
+        return jsonify({"antwort": antwort})
+
+    # Weitere Bedingungen für andere Abfragen hier hinzufügen
+    return jsonify({"antwort": "Ich habe das nicht verstanden. Frag mit 'Wer ist XYZ?' oder 'Was ist ABC?'."})
     if frage == "trinity protocol":
         antwort = (
             "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
