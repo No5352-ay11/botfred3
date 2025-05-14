@@ -4,7 +4,6 @@ import requests
 import os
 import re
 from flask_sqlalchemy import SQLAlchemy
-from rapidfuzz import process
 
 # Wikipedia auf Deutsch
 wikipedia.set_lang("de")
@@ -27,10 +26,6 @@ class Feedback(db.Model):
 # Speicher für Chatverlauf und Bedeutungen
 bedeutungen_speicher = {}
 chatverlauf = []
-
-# Begriffs-Liste für Fuzzy Matching vorbereiten
-print("Lade Wikipedia-Begriffe für Fuzzy Matching...")
-begriffsliste = wikipedia.search("Technologie", results=200)
 
 # Route: Admin Feedback Übersicht
 @app.route("/admin/feedback")
@@ -71,9 +66,8 @@ def chat():
         )
         return jsonify({"antwort": antwort})
 
-    # 🧠 Begriff aus Frage extrahieren und korrigieren
-    rohbegriff = extrahiere_begriff(frage)
-    begriff = fuzzy_korrektur(rohbegriff, begriffsliste)
+    # 🧠 Begriff aus Frage extrahieren
+    begriff = extrahiere_begriff(frage)
     bedeutung = hole_bedeutung(begriff)
     bild_url = hole_bild_url(begriff)
 
@@ -115,12 +109,6 @@ def extrahiere_begriff(frage):
     else:
         return frage
 
-# ✨ Fuzzy-Korrektur
-
-def fuzzy_korrektur(eingabe, begriffsliste, limit=80):
-    match, score, _ = process.extractOne(eingabe, begriffsliste, score_cutoff=limit)
-    return match if match else eingabe
-
 # 🧠 Bedeutung holen (Wikipedia + DuckDuckGo)
 def hole_bedeutung(begriff):
     if begriff in bedeutungen_speicher:
@@ -137,11 +125,8 @@ def hole_bedeutung(begriff):
     except Exception:
         pass
 
+    # Fallback: DuckDuckGo
     duck = duckduckgo_suche(begriff)
-
-    if not duck or duck.strip() == "":
-        return "Hm, ich konnte dazu leider nichts finden. Versuch's nochmal mit einem anderen Begriff 🙂"
-
     bedeutungen_speicher[begriff] = duck
     return duck
 
@@ -177,17 +162,16 @@ def hole_bild_url(begriff):
         bilder = seite.images
         for bild in bilder:
             if bild.lower().endswith((".jpg", ".jpeg", ".png")):
+                # Ausschließen von Logos, Symbolen usw.
                 if not any(unscharf in bild.lower() for unscharf in ["logo", "icon", "wikimedia", "symbol", "flag", "map", "svg"]):
                     return bild
     except Exception as e:
         print(f"Bildfehler für '{begriff}': {e}")
         return None
     return None
-
 # App starten
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-
+    app.run(host="0.0.0.0", port=port) 
