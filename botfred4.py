@@ -137,6 +137,7 @@ def hole_bedeutung(begriff):
     except Exception:
         pass
 
+    # Fallback
     duck = duckduckgo_suche(begriff)
     bedeutungen_speicher[begriff] = duck
     return duck
