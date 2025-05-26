@@ -79,6 +79,16 @@ def chat():
     data = request.json
     frage = data.get("frage", "").lower()
 
+      if bild:
+        # 📥 Bild speichern
+        upload_path = os.path.join("static", "uploads")
+        os.makedirs(upload_path, exist_ok=True)
+        bildname = bild.filename
+        pfad = os.path.join(upload_path, bildname)
+        bild.save(pfad)
+        bild_url = f"/static/uploads/{bildname}"
+        antwort = f"Bild empfangen. Danke! 📷"
+
     if frage == "trinity protocol":
         antwort = (
             "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
