@@ -2,46 +2,110 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Botfred – Gesprächsmodus</title>
+    <title>Gesprächsmodus – Botfred</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at top, #0d1117 0%, #161b22 100%);
+            color: #c9d1d9;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background-color: rgba(22, 27, 34, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 25px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: #238636;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2ea043;
+        }
+
+        #zurueck {
+            background-color: #8250df;
+            margin-top: 40px;
+        }
+
+        #antwort {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #3fb950;
+        }
+
+        #erkannt {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #8b949e;
+        }
+    </style>
 </head>
 <body>
-    <h1>Botfred – Gesprächsmodus</h1>
-    <button onclick="startSpracherkennung()">🎙 Spreche mit Botfred</button>
-    <p id="antwort"></p>
+    <div class="container">
+        <h1>🎤 Gesprächsmodus</h1>
+        <p>Sag etwas – ich höre zu!</p>
+        <button onclick="spracheSenden()">🎙️ Mikrofon starten</button>
+
+        <div id="erkannt"></div>
+        <div id="antwort"></div>
+
+        <button id="zurueck" onclick="window.location.href='/'">⬅ Zurück zur Startseite</button>
+    </div>
 
     <script>
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-        function startSpracherkennung() {
-            if (!SpeechRecognition) {
-                alert("Dein Browser unterstützt keine Spracheingabe 😢");
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = "de-DE";
+        function spracheSenden() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'de-DE';
             recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
 
-            recognition.onresult = (event) => {
-                const frage = event.results[0][0].transcript;
+            recognition.onstart = function() {
+                document.getElementById("erkannt").innerText = "🎧 Höre zu...";
+                document.getElementById("antwort").innerText = "";
+            };
+
+            recognition.onresult = function(event) {
+                const text = event.results[0][0].transcript;
+                document.getElementById("erkannt").innerText = `🗣️ Du hast gesagt: "${text}"`;
+
                 fetch("/chat", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ frage })
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ frage: text })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    sprechen(data.antwort);
+                    document.getElementById("antwort").innerText = `🤖 Botfred: ${data.antwort}`;
                 });
             };
 
-            recognition.start();
-        }
+            recognition.onerror = function(event) {
+                document.getElementById("erkannt").innerText = "Fehler: " + event.error;
+            };
 
-        function sprechen(text) {
-            const speech = new SpeechSynthesisUtterance(text);
-            speech.lang = "de-DE";
-            window.speechSynthesis.speak(speech);
+            recognition.start();
         }
     </script>
 </body>
