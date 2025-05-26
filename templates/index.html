@@ -220,70 +220,30 @@
 
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-        >
-    let recognition;
-    let stopTimeout;
+   // Spracheingabe aktivieren (SpeechRecognition API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = "de-DE"; // Deutsch
+        recognition.interimResults = false;
 
-    function startenSpracheingabe() {
-        const frageInput = document.getElementById("frage");
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById("frage").value = transcript;
+            senden(); // automatisch abschicken
+        };
 
-        if (!SpeechRecognition) {
-            alert("Dein Browser unterstützt keine Spracheingabe 😢");
-            return;
+        recognition.onerror = function(event) {
+            console.error("Spracherkennung-Fehler:", event.error);
+        };
+
+        function spracheStarten() {
+            recognition.start();
         }
-
-        recognition = new SpeechRecognition();
-        recognition.lang = "de-DE";
-        recognition.interimResults = true;
-        recognition.continuous = true;
-
-        let finalTranscript = "";
-
-        recognition.onresult = (event) => {
-            let interim = "";
-
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                const result = event.results[i];
-                if (result.isFinal) {
-                    finalTranscript += result[0].transcript + " ";
-                } else {
-                    interim += result[0].transcript;
-                }
-            }
-
-            frageInput.value = finalTranscript + interim;
-
-            clearTimeout(stopTimeout);
-            stopTimeout = setTimeout(() => {
-                recognition.stop();
-            }, 2000); // Warte 2 Sekunden nach letzter Spracheingabe
-        };
-
-        recognition.onend = () => {
-            if (frageInput.value.trim()) {
-                senden(); // Absenden der Frage
-            }
-        };
-
-        recognition.start();
-    }
-
-    function senden() {
-        const frageInput = document.getElementById("frage");
-        const frage = frageInput.value;
-
-        fetch("/antwort", {
-            method: "POST",
-            body: new URLSearchParams({ frage }),
-            headers: { "Content-Type": "application/x-www-form-urlencoded" }
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("antwort").innerText = data.antwort;
-        });
-
-        frageInput.value = "";
+    } else {
+        function spracheStarten() {
+            alert("Dein Browser unterstützt keine Spracheingabe.");
+        }
     }
     </script>
 </body>
