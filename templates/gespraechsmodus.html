@@ -100,19 +100,35 @@
                     document.getElementById("antwort").innerText = ` Botfred: ${antwort}`;
 
                     // 🔊 Botfred spricht die Antwort
-                    const synth = window.speechSynthesis;
-                    const utterance = new SpeechSynthesisUtterance(antwort);
-                    utterance.lang = 'de-DE';
-                    synth.speak(utterance);
-                });
-            };
+    function sprichAntwort(antwort) {
+        const synth = window.speechSynthesis;
+        const utterance = new SpeechSynthesisUtterance(antwort);
+        utterance.lang = 'de-DE';
 
-            recognition.onerror = function(event) {
-                document.getElementById("erkannt").innerText = "Fehler: " + event.error;
-            };
+        synth.onvoiceschanged = () => {
+            const stimmen = synth.getVoices();
+            const maennlich = stimmen.find(stimme =>
+                stimme.lang === 'de-DE' &&
+                (stimme.name.toLowerCase().includes('male') ||
+                 stimme.name.toLowerCase().includes('mann') ||
+                 stimme.name.toLowerCase().includes('google deutsch'))
+            );
 
-            recognition.start();
+            if (maennlich) {
+                utterance.voice = maennlich;
+            } else {
+                console.warn("Keine passende männliche Stimme gefunden, benutze Standard.");
+            }
+
+            synth.speak(utterance);
+        };
+
+        // Wenn Stimmen schon da sind:
+        if (synth.getVoices().length > 0) {
+            synth.onvoiceschanged();
         }
+    }
+        
     </script>
 </body>
 </html>
