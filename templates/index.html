@@ -247,6 +247,35 @@
             alert("Dein Browser unterstützt keine Spracheingabe.");
         }
     }
+          document.getElementById("chat-form").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const frage = document.getElementById("frage").value;
+    const bild = document.getElementById("bild").files[0];
+
+    const formData = new FormData();
+    formData.append("frage", frage);
+    if (bild) {
+      formData.append("bild", bild);
+    }
+
+    const response = await fetch("/chat", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+    document.getElementById("antwort").innerText = data.antwort;
+
+    // Optional: Bild anzeigen
+    if (data.bild_url) {
+      const bildEl = document.createElement("img");
+      bildEl.src = data.bild_url;
+      bildEl.alt = "Bildantwort";
+      bildEl.style.maxWidth = "300px";
+      document.getElementById("antwort").appendChild(bildEl);
+    }
+  });
     </script>
 </body>
 </html>
