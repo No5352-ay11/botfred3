@@ -73,7 +73,7 @@
         <button id="zurueck" onclick="window.location.href='/'">⬅ Zurück zur Startseite</button>
     </div>
 
-    <script>
+     <script>
         function spracheSenden() {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'de-DE';
@@ -97,38 +97,22 @@
                 .then(response => response.json())
                 .then(data => {
                     const antwort = data.antwort;
-                    document.getElementById("antwort").innerText = ` Botfred: ${antwort}`;
+                    document.getElementById("antwort").innerText = `🤖 Botfred: ${antwort}`;
 
                     // 🔊 Botfred spricht die Antwort
-    function sprichAntwort(antwort) {
-        const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(antwort);
-        utterance.lang = 'de-DE';
+                    const synth = window.speechSynthesis;
+                    const utterance = new SpeechSynthesisUtterance(antwort);
+                    utterance.lang = 'de-DE';
+                    synth.speak(utterance);
+                });
+            };
 
-        synth.onvoiceschanged = () => {
-            const stimmen = synth.getVoices();
-            const maennlich = stimmen.find(stimme =>
-                stimme.lang === 'de-DE' &&
-                (stimme.name.toLowerCase().includes('male') ||
-                 stimme.name.toLowerCase().includes('mann') ||
-                 stimme.name.toLowerCase().includes('google deutsch'))
-            );
+            recognition.onerror = function(event) {
+                document.getElementById("erkannt").innerText = "Fehler: " + event.error;
+            };
 
-            if (maennlich) {
-                utterance.voice = maennlich;
-            } else {
-                console.warn("Keine passende männliche Stimme gefunden, benutze Standard.");
-            }
-
-            synth.speak(utterance);
-        };
-
-        // Wenn Stimmen schon da sind:
-        if (synth.getVoices().length > 0) {
-            synth.onvoiceschanged();
+            recognition.start();
         }
-    }
-        
     </script>
 </body>
 </html>
