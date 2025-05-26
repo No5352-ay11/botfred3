@@ -1,3 +1,4 @@
+
 from flask import Flask, request, jsonify, render_template
 import wikipedia
 import requests
@@ -11,6 +12,10 @@ wikipedia.set_lang("de")
 
 # Flask-App starten
 app = Flask(__name__)
+UPLOAD_FOLDER = "static/uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 # SQLite-Datenbank konfigurieren
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///feedback.db'
