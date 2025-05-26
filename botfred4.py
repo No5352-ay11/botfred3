@@ -79,6 +79,9 @@ def chat():
     data = request.json
     frage = data.get("frage", "").lower()
 
+      antwort = ""
+    bild_url = None
+
       if bild:
         # 📥 Bild speichern
         upload_path = os.path.join("static", "uploads")
