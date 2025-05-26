@@ -43,6 +43,10 @@ def index():
 def feedback():
     return render_template("feedback.html")
 
+@app.route("/gespraechsmodus")
+def gespraechsmodus():
+    return render_template("gespraechsmodus.html")
+
 # Route: Chat
 @app.route("/chat", methods=["POST"])
 def chat():
