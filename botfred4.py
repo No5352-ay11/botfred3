@@ -4,6 +4,7 @@ import requests
 import os
 import re
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
 
 # Wikipedia auf Deutsch
 wikipedia.set_lang("de")
