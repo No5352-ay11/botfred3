@@ -219,6 +219,31 @@
 
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+         // Spracheingabe aktivieren (SpeechRecognition API)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = "de-DE"; // Deutsch
+        recognition.interimResults = false;
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById("frage").value = transcript;
+            senden(); // automatisch abschicken
+        };
+
+        recognition.onerror = function(event) {
+            console.error("Spracherkennung-Fehler:", event.error);
+        };
+
+        function spracheStarten() {
+            recognition.start();
+        }
+    } else {
+        function spracheStarten() {
+            alert("Dein Browser unterstützt keine Spracheingabe.");
+        }
+    }
     </script>
 </body>
 </html>
