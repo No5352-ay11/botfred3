@@ -63,7 +63,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎤 Gesprächsmodus</h1>
+        <h1> Gesprächsmodus</h1>
         <p>Sag etwas – ich höre zu!</p>
         <button onclick="spracheSenden()">🎙️ Mikrofon starten</button>
 
@@ -97,7 +97,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const antwort = data.antwort;
-                    document.getElementById("antwort").innerText = `🤖 Botfred: ${antwort}`;
+                    document.getElementById("antwort").innerText = ` Botfred: ${antwort}`;
 
                     // 🔊 Botfred spricht die Antwort
                     const synth = window.speechSynthesis;
