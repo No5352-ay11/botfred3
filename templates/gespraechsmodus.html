@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Botfred – Gesprächsmodus</title>
+</head>
+<body>
+    <h1>Botfred – Gesprächsmodus</h1>
+    <button onclick="startSpracherkennung()">🎙 Spreche mit Botfred</button>
+    <p id="antwort"></p>
 
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        function startSpracherkennung() {
+            if (!SpeechRecognition) {
+                alert("Dein Browser unterstützt keine Spracheingabe 😢");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = "de-DE";
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const frage = event.results[0][0].transcript;
+                fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ frage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    sprechen(data.antwort);
+                });
+            };
+
+            recognition.start();
+        }
+
+        function sprechen(text) {
+            const speech = new SpeechSynthesisUtterance(text);
+            speech.lang = "de-DE";
+            window.speechSynthesis.speak(speech);
+        }
+    </script>
+</body>
+</html>
