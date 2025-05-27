@@ -102,6 +102,8 @@ except Exception as e:
 
 return jsonify({"antwort": antwort, "bild_url": bild_url})
 
+return jsonify({"antwort": antwort, "bild_url": bild_url})
+
     if frage == "trinity protocol":
         antwort = (
             "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
