@@ -303,6 +303,31 @@ document.getElementById("bild-upload-form").addEventListener("submit", async fun
         alert("Fehler beim Hochladen des Bildes.");
     }
 });
+        // 📎 Bild-Upload-Formular behandeln
+    document.getElementById("bild-upload-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById("bild-datei");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Bitte wähle ein Bild aus.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/upload_bild", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        // Nachricht und Bild im Chat anzeigen
+        appendMessage("Du", "📎 Bild gesendet:", "user", result.bild_url);
+    });
     </script>
 </body>
 </html>
