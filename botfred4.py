@@ -89,14 +89,14 @@ def chat():
             bild.save(bild_path)
             bild_url = f"/{bild_path}"
 
-        # Beispielantwort basierend auf Frage
-        if frage.lower().startswith("wie funktioniert"):
-            antwort = "Ein Motor wandelt Energie in Bewegung um."
-        elif frage.strip() == "":
-            antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
-        else:
-            antwort = f"Interessante Frage: {frage}"
-
+       try:
+    antwort = wikipedia.summary(frage, sentences=3)
+except wikipedia.exceptions.DisambiguationError as e:
+    antwort = f"Deine Frage ist zu allgemein. Mögliche Themen: {', '.join(e.options[:5])}"
+except wikipedia.exceptions.PageError:
+    antwort = "Dazu habe ich leider nichts in Wikipedia gefunden."
+except Exception as e:
+    antwort = f"Fehler bei der Suche: {str(e)}"
         return jsonify({"antwort": antwort, "bild_url": bild_url})
 
     except Exception as e:
