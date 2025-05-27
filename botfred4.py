@@ -83,25 +83,27 @@ def chat():
         bild.save(pfad)
         bild_url = f"/{pfad}"
 
-    if frage.lower().startswith("wie funktioniert") or frage.lower().startswith("was ist") or frage.lower().startswith("wer ist"):
-      try:
-    if frage.strip() == " ":
-        antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
-    else:
-        try:
-            antwort = wikipedia.summary(frage, sentences=3)
-        except wikipedia.exceptions.DisambiguationError as e:
-            antwort = f"Deine Frage ist zu allgemein. Mögliche Themen: {', '.join(e.options[:5])}"
-        except wikipedia.exceptions.PageError:
-            antwort = "Dazu habe ich leider nichts in Wikipedia gefunden."
-        except Exception as e:
-            antwort = f"Fehler bei der Suche: {str(e)}"
-except Exception as e:
-    print("Fehler:", e)
-    return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
+    try:
+        if frage is None or frage.strip() == "":
+            antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
+        elif frage.lower().startswith(("wie funktioniert", "was ist", "wer ist")):
+            try:
+                antwort = wikipedia.summary(frage, sentences=3)
+            except wikipedia.exceptions.DisambiguationError as e:
+                antwort = f"Deine Frage ist zu allgemein. Mögliche Themen: {', '.join(e.options[:5])}"
+            except wikipedia.exceptions.PageError:
+                antwort = "Dazu habe ich leider nichts in Wikipedia gefunden."
+            except Exception as e:
+                antwort = f"Fehler bei der Suche: {str(e)}"
+        else:
+            antwort = f"Interessante Frage: {frage}"
 
-return jsonify({"antwort": antwort, "bild_url": bild_url})
+        return jsonify({"antwort": antwort, "bild_url": bild_url})
 
+    except Exception as e:
+        print("Fehler:", e)
+        return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
+        
     if frage == "trinity protocol":
         antwort = (
             "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
