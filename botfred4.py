@@ -89,6 +89,7 @@ def chat():
             bild.save(bild_path)
             bild_url = f"/{bild_path}"
 
+  try:
     antwort = wikipedia.summary(frage, sentences=3)
 except wikipedia.exceptions.DisambiguationError as e:
     antwort = f"Deine Frage ist zu allgemein. Mögliche Themen: {', '.join(e.options[:5])}"
