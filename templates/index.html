@@ -155,88 +155,72 @@
     </div>
 
     <script>
-        function senden() {
-            const frageInput = document.getElementById("frage");
-            const frage = frageInput.value.trim();
+    // Funktion zum Anzeigen von Nachrichten im Chat
+    function appendMessage(sender, text, type, bildUrl = null) {
+        const chatBox = document.getElementById("chat-box");
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${type}`;
+        messageDiv.innerHTML = `<span class="${type}">${sender}:</span> ${text}`;
+        chatBox.appendChild(messageDiv);
 
-            if (!frage) return;
-
-            appendMessage("Du", frage, "user");
-
-            frageInput.value = "";
-
-            fetch("/chat", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ frage: frage })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Antwort vom Server:", data);
-                appendMessage("Botfred", data.antwort, "bot", data.bild_url);
-            });
+        if (bildUrl) {
+            const img = document.createElement("img");
+            img.src = bildUrl;
+            img.alt = "Bildantwort";
+            chatBox.appendChild(img);
         }
 
-        // Funktion, um eine Nachricht hinzuzufügen
-        function appendMessage(sender, text, type, bildUrl = null) {
-            const chatBox = document.getElementById("chat-box");
-            const messageDiv = document.createElement("div");
-            messageDiv.className = message ${type};
-            messageDiv.innerHTML = <span class="${type}">${sender}:</span> ${text};
-            chatBox.appendChild(messageDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
 
-            if (bildUrl) {
-                const img = document.createElement("img");
-                img.src = bildUrl;
-                img.alt = "Bild von Botfred";
-                chatBox.appendChild(img);
-            }
+    // Formular absenden: Text und ggf. Bild senden
+    async function senden() {
+        const frageInput = document.getElementById("frage");
+        const bildInput = document.getElementById("bild");
 
-            chatBox.scrollTop = chatBox.scrollHeight;
+        const frage = frageInput.value.trim();
+        const bild = bildInput.files[0];
+
+        if (!frage && !bild) return;
+
+        if (frage) {
+            appendMessage("Du", frage, "user");
         }
 
-        // Funktion, die beim Laden der Seite ausgeführt wird
-        window.onload = function() {
-            // Sende eine Begrüßungsnachricht
-            setTimeout(() => {
-                appendMessage("Botfred", "Nah Sportsfreund was gibts?", "bot");
-            }, 500); // Nach 500ms (0,5s) wird die Nachricht gesendet
-        };
+        const formData = new FormData();
+        formData.append("frage", frage);
+        if (bild) {
+            formData.append("bild", bild);
+        }
 
-        function senden() {
-            const frageInput = document.getElementById("frage");
-            const frage = frageInput.value.trim();
-
-            if (!frage) return;
-
-            appendMessage("Du", frage, "user");
-
-            frageInput.value = "";
-
-            fetch("/chat", {
+        try {
+            const response = await fetch("/chat", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ frage: frage })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("Antwort vom Server:", data);
-                appendMessage("Botfred", data.antwort, "bot", data.bild_url);
+                body: formData
             });
 
-            chatBox.scrollTop = chatBox.scrollHeight;
+            const data = await response.json();
+            appendMessage("Botfred", data.antwort, "bot", data.bild_url);
+        } catch (error) {
+            console.error("Fehler beim Senden:", error);
+            appendMessage("Botfred", "Es ist ein Fehler aufgetreten.", "bot");
         }
-   // Spracheingabe aktivieren (SpeechRecognition API)
+
+        frageInput.value = "";
+        bildInput.value = "";
+    }
+
+    // Spracheingabe aktivieren (SpeechRecognition API)
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.lang = "de-DE"; // Deutsch
+        recognition.lang = "de-DE";
         recognition.interimResults = false;
 
         recognition.onresult = function(event) {
             const transcript = event.results[0][0].transcript;
             document.getElementById("frage").value = transcript;
-            senden(); // automatisch abschicken
+            senden(); // automatisch senden
         };
 
         recognition.onerror = function(event) {
@@ -251,40 +235,13 @@
             alert("Dein Browser unterstützt keine Spracheingabe.");
         }
     }
-          document.getElementById("chat-form").addEventListener("submit", async function(e) {
-    e.preventDefault();
 
-    const frage = document.getElementById("frage").value;
-    const bild = document.getElementById("bild").files[0];
-
-    const formData = new FormData();
-    formData.append("frage", frage);
-    if (bild) {
-      formData.append("bild", bild);
-    }
-
-    const response = await fetch("/chat", {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-    document.getElementById("antwort").innerText = data.antwort;
-
-    // Optional: Bild anzeigen
-    if (data.bild_url) {
-      const bildEl = document.createElement("img");
-      bildEl.src = data.bild_url;
-      bildEl.alt = "Bildantwort";
-      bildEl.style.maxWidth = "300px";
-      document.getElementById("antwort").appendChild(bildEl);
-    }
-  });
-      window.onload = function () {
-    // Begrüßung anzeigen
-    setTimeout(() => {
-        appendMessage("Botfred", "Nah Sportsfreund was gibts?", "bot");
-    }, 500);
-    </script>
+    // Begrüßung beim Laden der Seite
+    window.onload = function () {
+        setTimeout(() => {
+            appendMessage("Botfred", "Nah Sportsfreund was gibts?", "bot");
+        }, 500);
+    };
+</script>
 </body>
 </html>
