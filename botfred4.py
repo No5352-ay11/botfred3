@@ -72,11 +72,36 @@ def feedback():
 def gespraechsmodus():
     return render_template("gespraechsmodus.html")
 
-# Route: Chat
-@app.route("/chat", methods=["POST"])
+@app.route('/chat', methods=['POST'])
 def chat():
-    data = request.json
-    frage = data.get("frage", "").lower()
+    try:
+        frage = request.form.get("frage") or ""
+        bild = request.files.get("bild")
+
+        print("Empfangene Frage:", frage)
+        if bild:
+            print("Bild empfangen:", bild.filename)
+
+        # Bildverarbeitung
+        bild_url = None
+        if bild and bild.filename != "":
+            bild_path = os.path.join("static/uploads", bild.filename)
+            bild.save(bild_path)
+            bild_url = f"/{bild_path}"
+
+        # Beispielantwort basierend auf Frage
+        if frage.lower().startswith("wie funktioniert"):
+            antwort = "Ein Motor wandelt Energie in Bewegung um."
+        elif frage.strip() == "":
+            antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
+        else:
+            antwort = f"Interessante Frage: {frage}"
+
+        return jsonify({"antwort": antwort, "bild_url": bild_url})
+
+    except Exception as e:
+        print("Fehler:", e)
+        return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
 
     if frage == "trinity protocol":
         antwort = (
