@@ -47,22 +47,21 @@ def admin_feedback():
 def index():
     return render_template("index.html")
 
-@app.route("/upload", methods=["GET", "POST"])
-def upload():
-    if request.method == "POST":
-        if "file" not in request.files:
-            return render_template("upload.html", message="Keine Datei gesendet.")
-        file = request.files["file"]
-        if file.filename == "":
-            return render_template("upload.html", message="Keine Datei ausgewählt.")
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            file.save(filepath)
-            return render_template("upload.html", message="Upload erfolgreich!", image_url=filepath)
-        else:
-            return render_template("upload.html", message="Ungültiger Dateityp.")
-    return render_template("upload.html")
+@app.route("/upload_bild", methods=["POST"])
+def upload_bild():
+    if "file" not in request.files:
+        return jsonify({"error": "Keine Datei gesendet"}), 400
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "Keine Datei ausgewählt"}), 400
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        file.save(filepath)
+        bild_url = "/" + filepath.replace("\\", "/")  # Pfad für Webzugriff
+        return jsonify({"status": "ok", "bild_url": bild_url})
+    else:
+        return jsonify({"error": "Ungültiger Dateityp"}), 400
 
 # Route: Feedback-Seite
 @app.route("/feedback")
