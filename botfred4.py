@@ -101,7 +101,7 @@ except Exception as e:
     return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
 
 return jsonify({"antwort": antwort, "bild_url": bild_url})
-return jsonify({"antwort": antwort, "bild_url": bild_url})
+
     if frage == "trinity protocol":
         antwort = (
             "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
