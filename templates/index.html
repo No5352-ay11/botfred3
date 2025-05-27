@@ -141,17 +141,13 @@
         <div class="input-group">
             <input id="frage" type="text" placeholder="Frage mich alles was du möchtest, ich versuche zu antworten:)" onkeydown="if(event.key === 'Enter') senden()">
             <button onclick="senden()">Senden</button>
-            
-  <!-- 📎 Bild-Upload hinzufügen -->
-  <input type="file" id="bild" accept="image/*" />
-
             <button onclick="spracheStarten()" style="background-color: #8250df;">🎙 Spracheingabe</button>
         </div>
-        <div style="text-align: center; margin-top: 20px;">
-    <button onclick="window.location.href='feedback'" style="background-color: #8250df;">Feedback geben</button>
-   <button onclick="window.location.href='/gespraechsmodus'" style="background-color: #8250df;">Gesprächsmodus</button>
-            <a href="/upload"><button>📷 Bild hochladen</button></a>
-</div>
+       <!-- ✅ NEU: Bildupload-Formular -->
+<form id="bild-upload-form" enctype="multipart/form-data" style="margin-top: 10px;">
+    <input type="file" id="bild-datei" name="file" accept="image/*">
+    <button type="submit">📸 Bild senden</button>
+</form>
     </div>
 
     <script>
