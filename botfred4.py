@@ -84,7 +84,7 @@ def chat():
         bild_url = f"/{pfad}"
 
     if frage.lower().startswith("wie funktioniert") or frage.lower().startswith("was ist") or frage.lower().startswith("wer ist"):
-       try:
+      try:
     if frage.strip() == "":
         antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
     else:
@@ -100,6 +100,7 @@ except Exception as e:
     print("Fehler:", e)
     return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
 
+return jsonify({"antwort": antwort, "bild_url": bild_url})
 return jsonify({"antwort": antwort, "bild_url": bild_url})
     if frage == "trinity protocol":
         antwort = (
