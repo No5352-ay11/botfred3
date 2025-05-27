@@ -85,7 +85,7 @@ def chat():
 
     if frage.lower().startswith("wie funktioniert") or frage.lower().startswith("was ist") or frage.lower().startswith("wer ist"):
       try:
-    if frage.strip() == "":
+    if frage.strip() == " ":
         antwort = "Du hast keine Frage gestellt, aber danke fürs Bild!"
     else:
         try:
