@@ -96,7 +96,7 @@ def chat():
             except Exception as e:
                 antwort = f"Fehler bei der Suche: {str(e)}"
         else:
-            antwort = f"Interessante Frage: {frage}"
+            antwort = f"Stell ne vernüftige Frage du Flachpfeife!"
 
         return jsonify({"antwort": antwort, "bild_url": bild_url})
 
