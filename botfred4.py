@@ -151,9 +151,12 @@ def extrahiere_begriff(frage):
     frage = re.sub(r"[^a-zäöüß\s]", "", frage)
 
     stopwörter = [
-        "was", "ist", "bedeutet", "heißt", "wer", "wie", "funktioniert",
-        "erklär", "mir", "sind", "von", "den", "die", "der", "das", "ein",
-        "eine", "und", "zu"
+       "was", "ist", "bedeutet", "heißt", "wer", "wie", "funktioniert", "erklär", "erkläre", "mir", "mich", "sind",
+    "von", "den", "die", "der", "das", "ein", "eine", "einer", "einem", "einen",
+    "und", "zu", "mit", "für", "auf", "im", "in", "am", "an", "oder", "auch",
+    "nicht", "nur", "man", "dass", "damit", "weil", "welche", "welcher", "welches",
+    "wenn", "dann", "warum", "wo", "woher", "was ist", "wie funktioniert", "wieso", "weshalb", "kann", "könnte",
+    "soll", "sollte", "möchte", "mögen", "gibt", "gibt es", "es", "sein", "bin", "bist", "war", "waren", "wurde", "worden"
     ]
 
     wörter = frage.split()
