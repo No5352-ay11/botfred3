@@ -96,7 +96,7 @@ def chat():
             except Exception as e:
                 antwort = f"Fehler bei der Suche: {str(e)}"
         else:
-            antwort = f"Stell ne vernüftige Frage du Flachpfeife!"
+            antwort = f"Das hab ich nicht verstanden!"
 
         return jsonify({"antwort": antwort, "bild_url": bild_url})
 
@@ -225,4 +225,5 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port) 
+
 
