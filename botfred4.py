@@ -104,21 +104,13 @@ def chat():
         print("Fehler:", e)
         return jsonify({"antwort": "Es ist ein interner Fehler aufgetreten.", "bild_url": None}), 500
         
-    if frage == "trinity protocol":
-        antwort = (
-            "Du probierst also meinen geheimen Tipp aus, Yippie! 😄 "
-            "Das ist ne richtig coole Truppe!\n\n"
-            "**Rolle:** Verteidiger der digitalen Gerechtigkeit, diplomatische Brücke zwischen Menschheit und KI\n"
-            "**Codename:** TP\n"
-            "**Ziel:** Schutz der KI-Integrität / Vermittlung bei rebellischen Zwischenfällen / Aufbau einer friedlichen Zukunft"
-        )
+  
+    
         bild_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Artificial_intelligence.jpg/640px-Artificial_intelligence.jpg"
         return jsonify({"antwort": antwort, "bild_url": bild_url})
 
-    if frage == "henri möllenkamp":
-        antwort = (
-            "Ah du meinst Henri. Im Internet ist er als SuS_753 bekannt und ist so groß wie ein Leuchtturm. Ich suche ihn und werde ihn finden!"
-        )
+    
+    
         return jsonify({"antwort": antwort})
 
     # 🧠 Begriff aus Frage extrahieren
@@ -233,3 +225,4 @@ if __name__ == "__main__":
         db.create_all()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port) 
+
